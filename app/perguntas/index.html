@@ -1,0 +1,13 @@
+﻿<h1>Cadastrar pergunta</h1>
+<div class="form-container">
+    <form method="post">
+        <div class="form-group">
+            <label for="firstName">Perguntas</label>
+            <input type="text" id="pergunta" ng-model="vm.perguntas" class="form-control"/>
+        </div>       
+        <div class="form-group">
+            <button class="btn btn-primary" ng-click="vm.savePergunta()">Save</button>
+            <button class="btn btn-danger" ng-click="vm.deletePergunta()">Delete</button>
+        </div>
+    </form>
+</div>

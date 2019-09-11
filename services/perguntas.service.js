@@ -5,87 +5,34 @@ var bcrypt = require('bcryptjs');
 var Q = require('q');
 var mongo = require('mongoskin');
 var db = mongo.db(config.connectionString, { native_parser: true });
-db.bind('users');
+db.bind('perguntas');
 
 var service = {};
 
-service.authenticate = authenticate;
-service.getById = getById;
+
+service.getPerguntas = getPerguntas;
 service.create = create;
 service.update = update;
 service.delete = _delete;
-service.createpergunta = createpergunta;
 
 module.exports = service;
 
-function authenticate(username, password) {
+function create(perguntas) {    
     var deferred = Q.defer();
 
-    db.users.findOne({ username: username }, function (err, user) {
-        if (err) deferred.reject(err.name + ': ' + err.message);
-
-        if (user && bcrypt.compareSync(password, user.hash)) {
-            // authentication successful
-            deferred.resolve({token :jwt.sign({ sub: user._id }, config.secret), userId: user._id});
-        } else {
-            // authentication failed
-            deferred.resolve();
-        }
-    });
-
-    return deferred.promise;
-}
-
-function getById(_id) {
-    var deferred = Q.defer();
-
-    db.users.findById(_id, function (err, user) {
-        if (err) deferred.reject(err.name + ': ' + err.message);
-
-        if (user) {
-            // return user (without hashed password)
-            deferred.resolve(_.omit(user, 'hash'));
-        } else {
-            // user not found
-            deferred.resolve();
-        }
-    });
-
-    return deferred.promise;
-}
-
-function create(userParam) {
-    var deferred = Q.defer();
-
-    // validation
-    db.users.findOne(
-        { username: userParam.username },
-        function (err, user) {
+    db.perguntas.insert(
+        perguntas, 
+        function (err, perguntas) {
             if (err) deferred.reject(err.name + ': ' + err.message);
-
-            if (user) {
-                // username already exists
-                deferred.reject('Username "' + userParam.username + '" is already taken');
+    
+            if (perguntas) {
+                // return user (without hashed password)
+                deferred.resolve(perguntas);
             } else {
-                createUser();
+                // user not found
+                deferred.resolve();
             }
         });
-
-    function createUser() {
-        // set user object to userParam without the cleartext password
-        var user = _.omit(userParam, 'password');
-
-        // add hashed password to user object
-        user.hash = bcrypt.hashSync(userParam.password, 10);
-
-        db.users.insert(
-            user,
-            function (err, doc) {
-                if (err) deferred.reject(err.name + ': ' + err.message);
-
-                deferred.resolve();
-            });
-    }
 
     return deferred.promise;
 }
@@ -156,17 +103,22 @@ function _delete(_id) {
     return deferred.promise;
 }
 
-function createpergunta(pergunta) {
-    // set user object to userParam without the cleartext password
-    var pergunta = _.omit(pergunta, 'pergunta');    
+function getPerguntas(id_user) {    
+    var deferred = Q.defer();
 
-    db.users.insert(
-        pergunta,
-        function (err, doc) {
-            if (err) deferred.reject(err.name + ': ' + err.message);
+    db.perguntas.findById(
+        id_user, 
+        function (err, perguntas) {
+        if (err) deferred.reject(err.name + ': ' + err.message);
 
+        if (perguntas) {
+            // return user (without hashed password)
+            deferred.resolve(perguntas);
+        } else {
+            // user not found
             deferred.resolve();
-        });
-    
+        }        
+    });
+
     return deferred.promise;
 }

@@ -15,6 +15,7 @@
         service.Create = Create;
         service.Update = Update;
         service.Delete = Delete;
+        service.CreatePergunta = CreatePergunta;
 
         return service;
 
@@ -44,6 +45,10 @@
 
         function Delete(_id) {
             return $http.delete('/api/users/' + _id).then(handleSuccess, handleError);
+        }
+
+        function CreatePergunta(descricao) {
+            return $http.post('/api/pergunta/' + descricao).then(handleSuccess, handleError);
         }
 
         // private functions
